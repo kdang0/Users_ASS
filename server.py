@@ -5,12 +5,18 @@ app.secret_key = "MAKE IT MAKE SENSE"
 
 @app.route('/')
 def index():
-    return render_template("index.html")
-
-@app.route('/result')
-def result():
     users = User.get_all()
-    return render_template("create.html", all_users = users)
+    return render_template("result.html", all_users = users)
+
+@app.route('/add_user')
+def result():
+    return render_template("create.html")
+
+
+@app.route('/edit', methods = ["POST"])
+def edit():
+    User.update(request.form)
+    return redirect('/')
 
 @app.route('/create_user', methods=["POST"])
 def create_user():
@@ -20,7 +26,29 @@ def create_user():
         'email' : request.form["email"]
     }
     User.save(data)
-    return redirect('/result')
+    return redirect('/')
+
+@app.route('/show/<int:id>')
+def show_user(id):
+    data = {
+        "id" : id
+    }
+    return render_template("show.html", user=User.get_one(data))
+
+@app.route('/delete/<int:id>')
+def delete_user(id):
+    data = {
+        "id" : id
+    }
+    User.delete(data)
+    return redirect('/')
+
+@app.route('/edit_user/<int:id>')
+def edit_user(id):
+    data = {
+        "id" : id
+    }
+    return render_template("edit.html", user=User.get_one(data))
 
 if __name__ == "__main__":
     app.run(debug=True)
